@@ -8,13 +8,15 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 
 ## Algorithms Implemented
 
-| Algorithm | Description | Location |
-|-----------|-------------|----------|
-| Brute Force | Exact search baseline (O(n)) | `method/bruteforce/` |
-| HNSW | Hierarchical Navigable Small World (multi-layer) | `method/hnsw1/` |
-| HNSW + Adaptive Search | HNSW with NGT's adaptive search strategy | `method/hnsw2/` |
-| FlatNav | Single-layer HNSW graph | `method/flatnav*/` |
-| ONNG | FlatNav + ONNG edge pruning | `method/onng*/` |
+| Algorithm | Description | Location | Type |
+|-----------|-------------|----------|------|
+| Brute Force | Exact search baseline (O(n)) | `method/bruteforce/` | Custom |
+| HNSW | Hierarchical Navigable Small World (multi-layer) | `method/hnsw1/` | Custom |
+| HNSW + Adaptive Search | HNSW with NGT's adaptive search strategy | `method/hnsw2/` | Custom |
+| FlatNav | Single-layer HNSW graph | `method/flatnav*/` | Custom |
+| ONNG | FlatNav + ONNG edge pruning | `method/onng*/` | Custom |
+| hnswlib | Official hnswlib library | `method/hnswlib/` | Library |
+| flatnavlib | Official FlatNav library | `method/flatnavlib/` | Library |
 
 ### Implementation Notes
 
@@ -40,6 +42,8 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 | SIFT | 1,000,000 | 128 | 10,000 | |
 | GLOVE | 1,183,514 | 100 | 10,000 | Normalized, L2 distance |
 | DEBUG | 1,000 | 16 | 100 | |
+
+> **Note**: Only binary format (`.bin`) files are included in this repository. Text format (`.txt`) files are excluded due to large file size (~800MB). You can convert between formats using the scripts in `checker/`.
 
 ## Performance Results
 
@@ -140,11 +144,14 @@ public:
 
 ## Dependencies
 
-This project uses the following open-source libraries:
+This project includes or references the following open-source libraries:
 
-- [Cereal](https://github.com/USCiLab/cereal) - Serialization (BSD-3-Clause)
-- [RapidJSON](https://github.com/Tencent/rapidjson) - JSON parsing (MIT)
-- [hnswlib](https://github.com/nmslib/hnswlib) - HNSW implementation reference (Apache-2.0)
+| Library | Usage | License | Location |
+|---------|-------|---------|----------|
+| [hnswlib](https://github.com/nmslib/hnswlib) | HNSW reference implementation | Apache-2.0 | `method/hnswlib/` |
+| [FlatNav](https://github.com/BlaiseMuhworworker/flatnav) | FlatNav reference implementation | MIT | `method/flatnavlib/` |
+| [Cereal](https://github.com/USCiLab/cereal) | Serialization | BSD-3-Clause | `method/flatnavlib/cereal/` |
+| [RapidJSON](https://github.com/Tencent/rapidjson) | JSON parsing | MIT | `method/flatnavlib/cereal/external/rapidjson/` |
 
 ## License
 
