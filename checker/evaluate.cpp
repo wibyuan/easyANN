@@ -30,7 +30,7 @@ const string GLOVE_QUERY_FILE = "../data/glove/query.bin";
 const string GLOVE_TRUTH_FILE = "../data/glove/groundtruth.bin";
 const int GLOVE_D = 100;
 const long long GLOVE_BASE_N = 1183514;
-const long long GLOVE_QUERY_N = 9000;
+const long long GLOVE_QUERY_N = 10000;
 
 // --- 项目配置 ---
 const int K = 10; // 查找 10 个最近邻

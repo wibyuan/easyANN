@@ -6,7 +6,7 @@ print("--- GLOVE 数据集物理拆分脚本 ---")
 # --- GLOVE 配置 (固定) ---
 D = 100
 BASE_N = 1183514
-QUERY_N = 9000
+QUERY_N = 10000
 BASE_FLOATS = BASE_N * D
 TOTAL_FLOATS = BASE_FLOATS + (QUERY_N * D)
 

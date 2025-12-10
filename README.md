@@ -35,11 +35,11 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 
 ## Datasets
 
-| Dataset | Base Vectors | Dimensions | Queries |
-|---------|--------------|------------|---------|
-| SIFT | 1,000,000 | 128 | 10,000 |
-| GLOVE | 1,183,514 | 100 | 9,000 |
-| DEBUG | 1,000 | 16 | 100 |
+| Dataset | Base Vectors | Dimensions | Queries | Note |
+|---------|--------------|------------|---------|------|
+| SIFT | 1,000,000 | 128 | 10,000 | |
+| GLOVE | 1,183,514 | 100 | 10,000 | Normalized, L2 distance |
+| DEBUG | 1,000 | 16 | 100 | |
 
 ## Performance Results
 
@@ -60,7 +60,7 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 | ONNG + SQ16 | 0.24 | 99.32% | ✓ |
 | No Pruning (onng1_test2_sq16_2) | 0.39 | 99.54% | ✓ |
 
-### GLOVE Dataset (1.18M vectors, 100-dim, 9K queries)
+### GLOVE Dataset (1.18M vectors, 100-dim, 10K queries)
 
 | Method | Search Latency (ms) | Recall@10 | Pass |
 |--------|---------------------|-----------|------|
@@ -75,7 +75,7 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 | ONNG + SQ16 | 2.12 | 99.26% | ✓ |
 | No Pruning (onng1_test2_sq16_2) | 2.78 | 99.42% | ✓ |
 
-> **Note**: GLOVE is a harder dataset. Standard HNSW without adaptive search fails to reach 99% recall.
+> **Note**: GLOVE vectors are normalized, so L2 distance is used. This is a harder dataset - standard HNSW without adaptive search fails to reach 99% recall.
 
 ## Project Structure
 

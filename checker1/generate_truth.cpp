@@ -14,7 +14,7 @@ const string GLOVE_INPUT_FILE = "../data/glove/base.txt";
 const string GLOVE_OUTPUT_FILE = "../data/glove/groundtruth.txt";
 const int GLOVE_D = 100;
 const long long GLOVE_BASE_N = 1183514;
-const long long GLOVE_QUERY_N = 9000;
+const long long GLOVE_QUERY_N = 10000;
 const long long GLOVE_BASE_FLOATS = GLOVE_BASE_N * GLOVE_D;
 const long long GLOVE_TOTAL_FLOATS = GLOVE_BASE_FLOATS + (GLOVE_QUERY_N * GLOVE_D);
 
