@@ -43,13 +43,39 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 
 ## Performance Results
 
-Example results on SIFT dataset (1M vectors, 128-dim):
+### SIFT Dataset (1M vectors, 128-dim, 10K queries)
 
-| Method | Search Latency (ms) | Recall@10 |
-|--------|---------------------|-----------|
-| Brute Force | 128.45 | 99.94% |
-| HNSW | 1.27 | 99.57% |
-| ONNG | 0.33 | 99.33% |
+| Method | Search Latency (ms) | Recall@10 | Pass |
+|--------|---------------------|-----------|------|
+| Brute Force | 128.45 | 99.94% | ✓ |
+| HNSW (hnsw1) | 1.27 | 99.57% | ✓ |
+| HNSW + Adaptive (hnsw2) | 1.32 | 99.84% | ✓ |
+| FlatNav | 1.36 | 99.84% | ✓ |
+| FlatNav + SIMD | 1.09 | 99.84% | ✓ |
+| FlatNav + Threads | 0.66 | 99.89% | ✓ |
+| FlatNav + RCM | 0.54 | 99.86% | ✓ |
+| FlatNav + RCM + Path | 0.43 | 99.57% | ✓ |
+| ONNG | 0.36 | 99.28% | ✓ |
+| ONNG (onng1_test2) | 0.33 | 99.33% | ✓ |
+| ONNG + SQ16 | 0.24 | 99.32% | ✓ |
+| No Pruning (onng1_test2_sq16_2) | 0.39 | 99.54% | ✓ |
+
+### GLOVE Dataset (1.18M vectors, 100-dim, 9K queries)
+
+| Method | Search Latency (ms) | Recall@10 | Pass |
+|--------|---------------------|-----------|------|
+| Brute Force | 133.90 | 100.00% | ✓ |
+| HNSW (hnsw1) | 1.74 | 86.71% | ✗ |
+| HNSW + Adaptive (hnsw2) | 11.67 | 99.14% | ✓ |
+| FlatNav | 11.79 | 99.12% | ✓ |
+| FlatNav + Threads | 5.86 | 99.24% | ✓ |
+| FlatNav + RCM + Path | 3.93 | 99.31% | ✓ |
+| ONNG | 3.47 | 99.13% | ✓ |
+| ONNG (onng1_test2) | 3.06 | 99.32% | ✓ |
+| ONNG + SQ16 | 2.12 | 99.26% | ✓ |
+| No Pruning (onng1_test2_sq16_2) | 2.78 | 99.42% | ✓ |
+
+> **Note**: GLOVE is a harder dataset. Standard HNSW without adaptive search fails to reach 99% recall.
 
 ## Project Structure
 
