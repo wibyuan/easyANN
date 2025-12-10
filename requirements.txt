@@ -1,0 +1,8 @@
+# Core dependencies
+numpy>=1.20.0
+
+# Hyperparameter optimization
+optuna>=3.0.0
+
+# Visualization (optional)
+matplotlib>=3.5.0

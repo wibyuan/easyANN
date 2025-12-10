@@ -1,0 +1,47 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Large data txt files (use .bin instead)
+data/**/*.txt
+
+# Compiled executables
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.lib
+
+# Archive files
+*.tar
+*.tar.gz
+*.zip
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
