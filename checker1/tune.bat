@@ -1,5 +1,5 @@
 @echo off
-REM 操，这是一键评测脚本
+REM 一键评测脚本
 REM 
 REM 用法: .\run_eval.bat [method_name]
 REM 示例: .\run_eval.bat brute
@@ -13,7 +13,7 @@ REM 4. 运行 .\evaluate.exe，并把结果文件路径 ../method/brute/evaluati
 
 REM 检查参数
 IF "%1"=="" (
-    echo 操，你他妈没告诉我评测哪个方法名。
+    echo 错误: 未指定评测方法名。
     echo.
     echo 用法: .\tune.bat [method_name]
     echo 示例: .\tune.bat brute

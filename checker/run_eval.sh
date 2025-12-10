@@ -1,5 +1,5 @@
 #!/bin/bash
-# 操，这是一键评测脚本
+# 一键评测脚本
 #
 # 用法: ./run_eval.sh [method_name]
 # 示例: ./run_eval.sh brute
@@ -13,7 +13,7 @@
 # 检查参数
 # $1 是第一个参数。"-z" 检查字符串是否为空。
 if [ -z "$1" ]; then
-    echo "操，你他妈没告诉我评测哪个方法名。"
+    echo "错误: 未指定评测方法名。"
     echo ""
     echo "用法: ./run_eval.sh [method_name]"
     echo "示例: ./run_eval.sh brute"
@@ -41,7 +41,7 @@ echo "正在编译..."
 g++ "$INCLUDE_PATH" evaluate.cpp "$SRC_FILE" -o evaluate -O3 -std=c++17
 
 if [ $? -ne 0 ]; then # "-ne 0" 等价于 "NEQ 0"
-    echo "操，编译他妈的失败了！"
+    echo "错误: 编译失败！"
     exit 1
 fi
 echo "编译成功。"

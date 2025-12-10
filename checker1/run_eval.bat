@@ -1,5 +1,5 @@
 @echo off
-REM 操，这是一键评测脚本
+REM 一键评测脚本
 REM 
 REM 用法: .\run_eval.bat [method_name]
 REM 示例: .\run_eval.bat brute
@@ -13,7 +13,7 @@ REM 4. 运行 .\evaluate.exe，并把结果文件路径 ../method/brute/evaluati
 
 REM 检查参数
 IF "%1"=="" (
-    echo 操，你他妈没告诉我评测哪个方法名。
+    echo 错误: 未指定评测方法名。
     echo.
     echo 用法: .\run_eval.bat [method_name]
     echo 示例: .\run_eval.bat brute
@@ -38,7 +38,7 @@ REM 加上 -DCOUNT_DIST
 g++ %INCLUDE_PATH% evaluate.cpp %SRC_FILE% -o evaluate -O3 -std=c++17 -DCOUNT_DIST -DTEST_GRAPH
 
 IF %ERRORLEVEL% NEQ 0 (
-    echo 操，编译他妈的失败了！
+    echo 错误: 编译失败！
     goto :eof
 )
 echo 编译成功。

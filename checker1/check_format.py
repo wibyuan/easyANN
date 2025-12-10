@@ -47,7 +47,6 @@ def check_file_format(filepath, expected_n, expected_d):
         print(f"  缺少或多出了 {abs(actual_count - expected_total):,} 个数字。")
 
 if __name__ == "__main__":
-    # 根据 PJ.pdf 第 11 页定义
     # SIFT: N=1,000,000, d=128
     # GLOVE: N=1,183,514, d=100
     

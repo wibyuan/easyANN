@@ -1,9 +1,9 @@
 #!/bin/bash
-# 操，这是一键评测脚本 (Linux/macOS 版)
+# 一键评测脚本 (Linux/macOS 版)
 
 # 检查参数
 if [ -z "$1" ]; then
-    echo "操，你他妈没告诉我评测哪个方法名。"
+    echo "错误: 未指定评测方法名。"
     echo ""
     echo "用法: ./run_eval.sh [method_name] [mode]"
     echo "示例 1 (极速模式): ./run_eval.sh hnsw2"
@@ -22,7 +22,7 @@ OUTPUT_FILE="$METHOD_DIR/evaluation_results.txt"
 # --- 编译器参数配置 ---
 # 1. -O3: 开启最高优化
 # 2. -std=c++17: 必须的
-# 3. -fopenmp: 操，这个必须加，否则多线程 build 无效！
+# 3. -fopenmp: 错误: 必须加，否则多线程 build 无效！
 CXX_FLAGS="-O3 -std=c++17 -fopenmp"
 
 # 检查是否开启计数模式
@@ -43,7 +43,7 @@ echo "正在编译..."
 g++ $INCLUDE_PATH evaluate.cpp "$SRC_FILE" -o evaluate $CXX_FLAGS
 
 if [ $? -ne 0 ]; then
-    echo "操，编译他妈的失败了！"
+    echo "错误: 编译失败！"
     exit 1
 fi
 echo "编译成功。"
