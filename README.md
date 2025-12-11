@@ -122,6 +122,8 @@ cd checker
 ./run_eval.sh hnsw1
 ```
 
+> Why does DEBUG run twice in `checker/evaluate.cpp`? During early development we intentionally evaluate the small DEBUG set two times back-to-back. The duplicate pass makes silent crashes or uninitialized-state bugs surface earlier (e.g., use-after-free after the first loop). The lighter `checker1` variant drops this double-run to save a few seconds when you just need a clean pass.
+
 ### Data Format
 
 - **Binary format** (`.bin`): Optimized for fast loading
