@@ -4,7 +4,7 @@ A comparative study of multiple Approximate Nearest Neighbor (ANN) search algori
 
 ## Overview
 
-This project implements 30+ variants of ANN algorithms to find the K nearest neighbors in high-dimensional vector spaces. It includes a complete evaluation framework for measuring recall and query performance (QPS).
+This project implements 30+ variants of ANN algorithms to find the K nearest neighbors in high-dimensional vector spaces. It is meant as a convenient sandbox: drop in your own ANN code, run a one-liner, and instantly compare build/search speed and recall against the bundled baselines.
 
 ## Algorithms Implemented
 
@@ -91,16 +91,22 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 |   |-- flatnav*/     # FlatNav variants (custom)
 |   |-- onng*/        # ONNG variants (custom)
 |   |-- hnswlib/      # Library baseline (official hnswlib)
-|   -- flatnavlib/   # Library baseline (FlatNav + Cereal/RapidJSON)
+|   `-- flatnavlib/   # Library baseline (FlatNav + Cereal/RapidJSON)
 |-- checker/          # Evaluation tools
 |   |-- evaluate.cpp  # Main evaluation program
 |   |-- run_eval.bat  # Windows evaluation script
-|   -- run_eval.sh   # Linux evaluation script
--- data/             # Datasets (binary format)
+|   `-- run_eval.sh   # Linux evaluation script
+`-- data/             # Datasets (binary format)
     |-- sift/
     |-- glove/
-    -- debug/
+    `-- debug/
 ```
+
+### Checkers
+
+- `checker/` — baseline evaluation harness; focuses on core build/search timing and Recall@10 gate (>=0.99).
+- `checker1/` — same harness but with higher-precision distance handling for all graph algorithms; still being completed.
+- `checker2/` (planned) — will add richer graph statistics/visualization while keeping evaluation compatible.
 
 ## Quick Start
 
