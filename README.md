@@ -85,20 +85,21 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 
 ```
 .
-├── method/           # Algorithm implementations
-│   ├── bruteforce/   # Baseline brute force search
-│   ├── hnsw*/        # HNSW variants
-│   ├── flatnav*/     # FlatNav variants
-│   ├── onng*/        # ONNG variants
-│   └── flatnavlib/   # Third-party libraries (Cereal, RapidJSON)
-├── checker/          # Evaluation tools
-│   ├── evaluate.cpp  # Main evaluation program
-│   ├── run_eval.bat  # Windows evaluation script
-│   └── run_eval.sh   # Linux evaluation script
-└── data/             # Datasets (binary format)
-    ├── sift/
-    ├── glove/
-    └── debug/
+|-- method/           # Algorithm implementations
+|   |-- bruteforce/   # Baseline brute force search
+|   |-- hnsw*/        # HNSW variants (custom)
+|   |-- flatnav*/     # FlatNav variants (custom)
+|   |-- onng*/        # ONNG variants (custom)
+|   |-- hnswlib/      # Library baseline (official hnswlib)
+|   -- flatnavlib/   # Library baseline (FlatNav + Cereal/RapidJSON)
+|-- checker/          # Evaluation tools
+|   |-- evaluate.cpp  # Main evaluation program
+|   |-- run_eval.bat  # Windows evaluation script
+|   -- run_eval.sh   # Linux evaluation script
+-- data/             # Datasets (binary format)
+    |-- sift/
+    |-- glove/
+    -- debug/
 ```
 
 ## Quick Start
