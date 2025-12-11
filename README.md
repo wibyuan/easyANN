@@ -152,6 +152,11 @@ cd checker2
 python plot_ablation.py hnsw2 SIFT
 ```
 
+**Features:**
+- **Graph caching**: Built graphs are saved to `graph_*.bin` for reuse
+- **Checkpoint resume**: If interrupted, evaluation resumes from the last completed parameter
+- **Parameter sweep**: Automatically sweeps gamma (0.00-0.50) or efSearch (0-1000)
+
 ## Quick Start
 
 ### Prerequisites
@@ -214,3 +219,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - SIFT dataset: [ANN Benchmarks](http://ann-benchmarks.com/)
 - GloVe dataset: [Stanford NLP](https://nlp.stanford.edu/projects/glove/)
+- AI assistants: [Claude](https://claude.ai/) (Anthropic), [Gemini](https://gemini.google.com/) (Google)

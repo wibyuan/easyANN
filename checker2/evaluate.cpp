@@ -235,22 +235,49 @@ void process_dataset_ablation(
         cout << "  图缓存已保存到: " << graph_cache_path << endl;
     }
 
-    // 8. 搜索评测 - 参数扫描
+    // 8. 搜索评测 - 参数扫描（支持断点续传）
     cout << "\n--- 搜索评测 (参数扫描) ---" << endl;
-
-    ofstream search_csv(search_csv_path);
-    search_csv << "gamma,efSearch,QPS,avg_dist_ops,recall\n";
 
     vector<float> current_query(D);
     int my_results[K];
 
-    int param_count = 0;
     int total_params = (int)((GAMMA_END - GAMMA_START) / GAMMA_STEP) + 1;
+    int start_idx = 0;
+
+    // 检查是否存在已有的搜索结果，支持断点续传
+    if (fs::exists(search_csv_path)) {
+        ifstream existing_csv(search_csv_path);
+        string line;
+        int line_count = 0;
+        while (getline(existing_csv, line)) {
+            if (!line.empty()) line_count++;
+        }
+        existing_csv.close();
+
+        // 减去 header 行
+        int completed_params = line_count - 1;
+        if (completed_params > 0 && completed_params < total_params) {
+            start_idx = completed_params;
+            cout << "  发现已有结果，从第 " << start_idx << "/" << total_params << " 个参数继续..." << endl;
+        } else if (completed_params >= total_params) {
+            cout << "  搜索结果已完成，跳过。" << endl;
+            return;
+        }
+    }
+
+    // 打开文件：如果从头开始则覆盖，否则追加
+    ofstream search_csv;
+    if (start_idx == 0) {
+        search_csv.open(search_csv_path);
+        search_csv << "gamma,efSearch,QPS,avg_dist_ops,recall\n";
+    } else {
+        search_csv.open(search_csv_path, ios::app);
+    }
 
     float gamma = GAMMA_START;
     int efSearch = EF_START;
 
-    for (int idx = 0; idx < total_params; ++idx) {
+    for (int idx = start_idx; idx < total_params; ++idx) {
         gamma = GAMMA_START + idx * GAMMA_STEP;
         efSearch = EF_START + idx * EF_STEP;
 
@@ -301,9 +328,9 @@ void process_dataset_ablation(
                    << fixed << setprecision(1) << QPS << ","
                    << fixed << setprecision(1) << avg_dist_ops << ","
                    << fixed << setprecision(6) << recall << "\n";
+        search_csv.flush();  // 每次写入后刷新，防止中断丢失
 
-        param_count++;
-        cout << "\r  进度: " << param_count << "/" << total_params
+        cout << "\r  进度: " << (idx + 1) << "/" << total_params
              << " gamma=" << fixed << setprecision(2) << gamma
              << " ef=" << efSearch
              << " QPS=" << (int)QPS << " recall=" << fixed << setprecision(4) << recall << "   " << flush;
