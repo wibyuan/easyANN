@@ -92,10 +92,15 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 |   |-- onng*/        # ONNG variants (custom)
 |   |-- hnswlib/      # Library baseline (official hnswlib)
 |   `-- flatnavlib/   # Library baseline (FlatNav + Cereal/RapidJSON)
-|-- checker/          # Evaluation tools
-|   |-- evaluate.cpp  # Main evaluation program
-|   |-- run_eval.bat  # Windows evaluation script
-|   `-- run_eval.sh   # Linux evaluation script
+|-- ablation/         # Ablation study variants
+|   |-- hnsw2/        # HNSW ablation experiments
+|   `-- onng1_test2/  # ONNG ablation experiments
+|-- checker/          # Basic evaluation tools
+|-- checker1/         # High-precision evaluation
+|-- checker2/         # Ablation study framework
+|   |-- evaluate.cpp  # Ablation evaluation program
+|   |-- run_eval.bat  # Windows script
+|   `-- plot_ablation.py  # Result visualization
 `-- data/             # Datasets (binary format)
     |-- sift/
     |-- glove/
@@ -106,7 +111,46 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 
 - `checker/` — baseline evaluation harness; focuses on core build/search timing and Recall@10 gate (>=0.99).
 - `checker1/` — same harness but with higher-precision distance handling for all graph algorithms; still being completed.
-- `checker2/` (planned) — will add richer graph statistics/visualization while keeping evaluation compatible.
+- `checker2/` — ablation study framework with parameter sweeping (gamma/efSearch), graph caching, and detailed statistics collection.
+
+## Ablation Studies
+
+The `ablation/` directory contains controlled experiments to measure the impact of individual algorithm components.
+
+### HNSW2 Ablation (`ablation/hnsw2/`)
+
+| Variant | Description |
+|---------|-------------|
+| `baseline` | Full HNSW with adaptive gamma search |
+| `baseline_with_fixed_beam` | Fixed efSearch instead of adaptive gamma |
+| `baseline_without_hierarchy` | Single-layer graph (FlatNav-like) |
+
+### ONNG Ablation (`ablation/onng1_test2/`)
+
+| Variant | Description |
+|---------|-------------|
+| `baseline` | Full precision float (base) |
+| `baseline_with_sq16` | Add SQ16 quantization |
+| `baseline_with_fixed_enterpoint` | Remove 100-point entry scan |
+| `baseline_without_last_shortcut_reduction` | Remove second edge pruning pass |
+| `baseline_without_rcm` | Remove RCM graph reordering |
+| `baseline_without_simd` | Force scalar distance computation |
+| `baseline_without_two_shortcut_reductions` | Remove all edge pruning |
+
+### Running Ablation Experiments
+
+```bash
+cd checker2
+
+# Run single variant
+.\run_eval.bat hnsw2\baseline DEBUG
+
+# Run all variants
+.\run_eval.bat hnsw2\baseline;.\run_eval.bat hnsw2\baseline_with_fixed_beam;...
+
+# Plot results
+python plot_ablation.py hnsw2 SIFT
+```
 
 ## Quick Start
 

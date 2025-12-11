@@ -45,3 +45,14 @@ dist/
 # Temporary files
 *.tmp
 *.temp
+
+# Claude Code
+.claude/
+
+# Generated graph cache and statistics
+**/graph_*.bin
+**/graph_backup_*.bin
+**/degree_*.csv
+**/search_*.csv
+**/build_stats_*.csv
+**/ablation_*.png
