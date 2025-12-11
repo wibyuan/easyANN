@@ -199,6 +199,10 @@ void process_dataset_ablation(
         #ifdef COUNT_DIST
             g_dist_calc_count = 0;
         #endif
+        #ifdef TEST_GRAPH
+            g_acc = 0;
+            g_tot = 0;
+        #endif
 
         auto start_build = chrono::high_resolution_clock::now();
         solution.build(D, base_data);

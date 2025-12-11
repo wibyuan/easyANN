@@ -11,9 +11,8 @@ public:
 
     // === 新增接口 ===
 
-    // 搜索参数设置（二选一生效）
-    void set_gamma(float gamma_val);    // 自适应搜索
-    void set_ef_search(int ef_val);     // 固定 beam（本变体忽略）
+    // 搜索参数设置 (gamma 用于自适应搜索)
+    void set_gamma(float gamma_val);
 
     // Build 统计
     vector<int> get_degree_distribution();  // 返回完整度数序列 (每个节点在 layer 0 的邻居数)
