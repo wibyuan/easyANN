@@ -7,19 +7,30 @@
 
 import os
 import sys
-import pandas as pd
+import csv
 import matplotlib.pyplot as plt
-import numpy as np
 
 # 自动拼接 ablation 路径
 ABLATION_BASE = "../ablation"
 
+def read_csv(filepath):
+    """读取 CSV 文件，返回字典列表"""
+    if not os.path.exists(filepath):
+        return None
+    with open(filepath, 'r') as f:
+        reader = csv.DictReader(f)
+        return list(reader)
+
 def plot_qps_recall(ax, data_dict, title):
     """绘制 QPS-Recall 曲线"""
-    for name, df in data_dict.items():
+    for name, rows in data_dict.items():
+        if not rows:
+            continue
         # 按 recall 排序
-        df_sorted = df.sort_values('recall')
-        ax.plot(df_sorted['recall'], df_sorted['QPS'], 'o-', label=name, markersize=3)
+        sorted_rows = sorted(rows, key=lambda x: float(x['recall']))
+        recalls = [float(r['recall']) for r in sorted_rows]
+        qps = [float(r['QPS']) for r in sorted_rows]
+        ax.plot(recalls, qps, 'o-', label=name, markersize=3)
     ax.set_xlabel('Recall@10')
     ax.set_ylabel('QPS')
     ax.set_title(f'{title}: QPS vs Recall')
@@ -28,9 +39,13 @@ def plot_qps_recall(ax, data_dict, title):
 
 def plot_distops_recall(ax, data_dict, title):
     """绘制 dist_ops-Recall 曲线"""
-    for name, df in data_dict.items():
-        df_sorted = df.sort_values('recall')
-        ax.plot(df_sorted['recall'], df_sorted['avg_dist_ops'], 'o-', label=name, markersize=3)
+    for name, rows in data_dict.items():
+        if not rows:
+            continue
+        sorted_rows = sorted(rows, key=lambda x: float(x['recall']))
+        recalls = [float(r['recall']) for r in sorted_rows]
+        dist_ops = [float(r['avg_dist_ops']) for r in sorted_rows]
+        ax.plot(recalls, dist_ops, 'o-', label=name, markersize=3)
     ax.set_xlabel('Recall@10')
     ax.set_ylabel('Avg Distance Operations')
     ax.set_title(f'{title}: dist_ops vs Recall')
@@ -39,8 +54,12 @@ def plot_distops_recall(ax, data_dict, title):
 
 def plot_degree_distribution(ax, data_dict, title):
     """绘制度数分布（已经是直方图格式）"""
-    for name, df in data_dict.items():
-        ax.bar(df['degree'], df['count'], alpha=0.5, label=name, width=0.8)
+    for name, rows in data_dict.items():
+        if not rows:
+            continue
+        degrees = [int(r['degree']) for r in rows]
+        counts = [int(r['count']) for r in rows]
+        ax.bar(degrees, counts, alpha=0.5, label=name, width=0.8)
     ax.set_xlabel('Degree')
     ax.set_ylabel('Count')
     ax.set_title(f'{title}: Degree Distribution')
@@ -61,18 +80,21 @@ def load_variant_data(base_dir, dataset):
 
         # 搜索结果
         search_csv = os.path.join(variant_path, f'search_{dataset}.csv')
-        if os.path.exists(search_csv):
-            search_data[variant] = pd.read_csv(search_csv)
+        data = read_csv(search_csv)
+        if data:
+            search_data[variant] = data
 
         # 度数分布
         degree_csv = os.path.join(variant_path, f'degree_{dataset}.csv')
-        if os.path.exists(degree_csv):
-            degree_data[variant] = pd.read_csv(degree_csv)
+        data = read_csv(degree_csv)
+        if data:
+            degree_data[variant] = data
 
         # Build 统计
         build_csv = os.path.join(variant_path, f'build_stats_{dataset}.csv')
-        if os.path.exists(build_csv):
-            build_data[variant] = pd.read_csv(build_csv)
+        data = read_csv(build_csv)
+        if data:
+            build_data[variant] = data
 
     return search_data, degree_data, build_data
 
@@ -80,17 +102,18 @@ def plot_build_comparison(ax, build_data, metric, title, ylabel):
     """绘制 build 指标对比柱状图"""
     names = []
     values = []
-    for name, df in build_data.items():
-        row = df[df['metric'] == metric]
-        if not row.empty:
-            names.append(name)
-            values.append(float(row['value'].iloc[0]))
+    for name, rows in build_data.items():
+        for row in rows:
+            if row.get('metric') == metric:
+                names.append(name)
+                values.append(float(row['value']))
+                break
 
     if names:
-        x = np.arange(len(names))
+        x = list(range(len(names)))
         ax.bar(x, values, color='steelblue', alpha=0.7)
         ax.set_xticks(x)
-        ax.set_xticklabels(names, rotation=45, ha='right', fontsize=8)
+        ax.set_xticklabels(names, rotation=30, ha='right', fontsize=7)
         ax.set_ylabel(ylabel)
         ax.set_title(title)
         ax.grid(True, alpha=0.3, axis='y')
@@ -126,8 +149,8 @@ def main():
         print(f"警告: 未找到搜索结果数据 (search_{dataset}.csv)")
 
     # 创建图表
-    fig = plt.figure(figsize=(16, 12))
-    fig.suptitle(f'Ablation Study: {method_group} on {dataset}', fontsize=14)
+    fig = plt.figure(figsize=(16, 14))
+    fig.suptitle(f'Ablation Study: {method_group} on {dataset}', fontsize=14, y=0.98)
 
     # 1. QPS-Recall 曲线
     if search_data:
@@ -159,7 +182,8 @@ def main():
         ax6 = fig.add_subplot(2, 3, 6)
         plot_build_comparison(ax6, build_data, 'nav_accuracy', f'{dataset}: Navigation Accuracy', 'Accuracy')
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.subplots_adjust(hspace=0.35, wspace=0.25)
 
     # 保存图片
     output_file = os.path.join(base_dir, f'ablation_{dataset}.png')

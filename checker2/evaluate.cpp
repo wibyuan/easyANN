@@ -48,8 +48,8 @@ const float GAMMA_END = 0.50f;
 const float GAMMA_STEP = 0.01f;
 
 // --- efSearch 参数扫描配置 ---
-const int EF_START = 0;
-const int EF_END = 1000;
+const int EF_START = 10;
+const int EF_END = 1010;
 const int EF_STEP = 20;
 
 /**
