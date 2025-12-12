@@ -8,6 +8,7 @@
 #include <atomic>
 #include <filesystem>
 #include <iomanip>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -47,10 +48,6 @@ const float GAMMA_START = 0.00f;
 const float GAMMA_END = 0.50f;
 const float GAMMA_STEP = 0.01f;
 
-// --- efSearch 参数扫描配置 ---
-const int EF_START = 10;
-const int EF_END = 1010;
-const int EF_STEP = 20;
 
 /**
  * 从二进制文件动态加载数据
@@ -91,7 +88,6 @@ long long load_from_bin_dynamic(const string& filename, vector<T>& data_vector, 
  * 保存度数分布到 CSV（直方图形式）
  */
 void save_degree_distribution(const vector<int>& degrees, const string& path) {
-    // 统计度数分布
     map<int, int> degree_count;
     for (int d : degrees) {
         degree_count[d]++;
@@ -136,10 +132,8 @@ void process_dataset_ablation(
     cout << "\n=============================================" << endl;
     cout << "--- 消融评测: " << dataset_name << " ---" << endl;
 
-    // 创建输出目录
     fs::create_directories(output_dir);
 
-    // 定义缓存文件路径
     string graph_cache_path = output_dir + "/graph_" + dataset_name + ".bin";
     string degree_csv_path = output_dir + "/degree_" + dataset_name + ".csv";
     string build_stats_path = output_dir + "/build_stats_" + dataset_name + ".csv";
@@ -164,18 +158,12 @@ void process_dataset_ablation(
         return;
     }
 
-    // 解析 groundtruth 为 2D
     vector<vector<int>> truth_data_2d(query_N, vector<int>(K));
     for (long long i = 0; i < query_N; ++i) {
         for (int k = 0; k < K; ++k) {
             truth_data_2d[i][k] = truth_flat[i * K + k];
         }
     }
-
-    // 为 KNN_check 生成每个节点的最近邻 (排除自身)
-    // 这里简化处理：使用 bruteforce 预计算或跳过
-    vector<int> nn_groundtruth(base_N, -1);
-    // TODO: 如果需要精确的 KNN_check，需要预计算每个节点的最近邻
 
     Solution solution;
 
@@ -222,7 +210,7 @@ void process_dataset_ablation(
         vector<int> degrees = solution.get_degree_distribution();
         save_degree_distribution(degrees, degree_csv_path);
 
-        // 5. 获取 KNN_check 结果（在 build 中已自动调用）
+        // 5. 获取 KNN_check 结果
         double nav_accuracy = 0.0, nav_steps = 0.0;
         #ifdef TEST_GRAPH
             nav_accuracy = (double)g_acc.load() / 10000.0;
@@ -247,29 +235,59 @@ void process_dataset_ablation(
 
     int total_params = (int)((GAMMA_END - GAMMA_START) / GAMMA_STEP) + 1;
     int start_idx = 0;
+    
+    // 初始化状态变量
+    double prev_recall = -1.0; 
+    int stable_count = 0; 
 
-    // 检查是否存在已有的搜索结果，支持断点续传
+    // 检查是否存在已有的搜索结果，支持断点续传并恢复状态
     if (fs::exists(search_csv_path)) {
         ifstream existing_csv(search_csv_path);
         string line;
-        int line_count = 0;
-        while (getline(existing_csv, line)) {
-            if (!line.empty()) line_count++;
+        vector<double> past_recalls;
+
+        // 跳过 header
+        if (getline(existing_csv, line)) {
+            while (getline(existing_csv, line)) {
+                if (line.empty()) continue;
+                
+                size_t last_comma = line.find_last_of(',');
+                if (last_comma != string::npos) {
+                    try {
+                        double r = stod(line.substr(last_comma + 1));
+                        past_recalls.push_back(r);
+                    } catch (...) {}
+                }
+            }
         }
         existing_csv.close();
 
-        // 减去 header 行
-        int completed_params = line_count - 1;
-        if (completed_params > 0 && completed_params < total_params) {
-            start_idx = completed_params;
+        start_idx = past_recalls.size();
+
+        // 核心修正：从历史数据恢复 stable_count
+        if (start_idx > 0) {
+            prev_recall = past_recalls.back();
+            
+            // 回溯计算连续稳定次数，直接用 == 判断
+            for (int i = start_idx - 2; i >= 0; --i) {
+                if (past_recalls[i] == prev_recall) {
+                    stable_count++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if (start_idx > 0 && start_idx < total_params) {
             cout << "  发现已有结果，从第 " << start_idx << "/" << total_params << " 个参数继续..." << endl;
-        } else if (completed_params >= total_params) {
+            cout << "  [状态恢复] 上次 Recall: " << fixed << setprecision(6) << prev_recall 
+                 << ", 已连续稳定次数: " << stable_count << endl;
+        } else if (start_idx >= total_params) {
             cout << "  搜索结果已完成，跳过。" << endl;
             return;
         }
     }
 
-    // 打开文件：如果从头开始则覆盖，否则追加
     ofstream search_csv;
     if (start_idx == 0) {
         search_csv.open(search_csv_path);
@@ -279,13 +297,12 @@ void process_dataset_ablation(
     }
 
     float gamma = GAMMA_START;
-    int efSearch = EF_START;
+    int efSearch = 10;
 
     for (int idx = start_idx; idx < total_params; ++idx) {
         gamma = GAMMA_START + idx * GAMMA_STEP;
-        efSearch = EF_START + idx * EF_STEP;
+        efSearch = 10 * pow(1.2, idx);
 
-        // 同时设置两个参数（每个变体只用一个）
         solution.set_gamma(gamma);
         solution.set_ef_search(efSearch);
 
@@ -304,7 +321,6 @@ void process_dataset_ablation(
 
             solution.search(current_query, my_results);
 
-            // 计算 recall
             const vector<int>& correct_results = truth_data_2d[i];
             set<int> correct_set(correct_results.begin(), correct_results.end());
             int hits = 0;
@@ -332,12 +348,35 @@ void process_dataset_ablation(
                    << fixed << setprecision(1) << QPS << ","
                    << fixed << setprecision(1) << avg_dist_ops << ","
                    << fixed << setprecision(6) << recall << "\n";
-        search_csv.flush();  // 每次写入后刷新，防止中断丢失
+        search_csv.flush();
 
         cout << "\r  进度: " << (idx + 1) << "/" << total_params
              << " gamma=" << fixed << setprecision(2) << gamma
              << " ef=" << efSearch
              << " QPS=" << (int)QPS << " recall=" << fixed << setprecision(4) << recall << "   " << flush;
+
+        // --- 终止条件判断 ---
+        
+        // 1. 达到 1
+        if (recall >= 1) {
+            cout << "\n  [终止] Recall 已达到 1，停止后续参数扫描。" << endl;
+            break;
+        }
+
+        // 2. 连续三次召回率不变，且大于 0.999
+        if (recall == prev_recall) {
+            stable_count++;
+        } else {
+            stable_count = 0;
+        }
+
+        if (stable_count >= 3 && recall > 0.999) {
+            cout << "\n  [终止] Recall 已连续 3 次保持不变 (" << fixed << setprecision(6) << recall << ") 且 > 0.999，停止扫描。" << endl;
+            break;
+        }
+
+        prev_recall = recall;
+        // ------------------
     }
 
     search_csv.close();
@@ -347,7 +386,7 @@ void process_dataset_ablation(
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         cerr << "用法: " << argv[0] << " <output_dir> [dataset]" << endl;
-        cerr << "  output_dir: 输出目录 (如 ../ablation/hnsw2/baseline)" << endl;
+        cerr << "  output_dir: 输出目录" << endl;
         cerr << "  dataset: DEBUG, SIFT, GLOVE, ALL (默认 ALL)" << endl;
         return 1;
     }
