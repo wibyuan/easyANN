@@ -278,11 +278,11 @@ void process_dataset_ablation(
             }
         }
 
-        if (start_idx > 0 && start_idx < total_params) {
+        if (start_idx > 0 && start_idx < total_params && stable_count < 3) {
             cout << "  发现已有结果，从第 " << start_idx << "/" << total_params << " 个参数继续..." << endl;
             cout << "  [状态恢复] 上次 Recall: " << fixed << setprecision(6) << prev_recall 
                  << ", 已连续稳定次数: " << stable_count << endl;
-        } else if (start_idx >= total_params) {
+        } else if (start_idx >= total_params || stable_count >= 3) {
             cout << "  搜索结果已完成，跳过。" << endl;
             return;
         }
