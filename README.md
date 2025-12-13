@@ -30,10 +30,10 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 
 ### Optimizations
 
-- **SIMD**: Vectorized distance computation (`flatnav1_SIMD/`)
-- **Multi-threading**: Parallel search (`flatnav1_threads*/`)
-- **Graph Reordering**: G-order, RCM optimization (`flatnav1_threads1_gorder/`, `flatnav1_threads1_rcm/`)
-- **Quantization**: SQ8, SQ16 compression (`onng1_test2_sq*/`)
+-   **SIMD**: Vectorized distance computation (`flatnav1_SIMD/`). **Note**: This implementation is x86-specific.
+-   **Multi-threading**: Parallel search (`flatnav1_threads*/`).
+-   **Graph Reordering**: G-order, RCM optimization (`flatnav1_threads1_gorder/`, `flatnav1_threads1_rcm/`).
+-   **Quantization**: SQ8, SQ16 compression (`onng1_test2_sq*/`).
 
 ## Datasets
 
@@ -141,22 +141,22 @@ We performed extensive ablation studies to isolate the impact of each optimizati
 
 ### Findings
 The chart below demonstrates the performance breakdown on the SIFT-1M dataset. The **SQ16 quantization** (Pink line) provides the most significant boost in QPS while maintaining high recall.
-![ONNG Ablation on SIFT](ablation/onng1_test2/ablation_SIFT_log.png)
+![ONNG Ablation on SIFT](assets/onng1_test2/ablation_SIFT_log.png)
 *Figure: QPS vs Recall (Log Scale) on SIFT-1M. Note how SQ16 dominates the high-recall regime.*
 
 ### Detailed Analysis
 
 **HNSW2 on SIFT (Impact of Hierarchy & Beam Search)**
-![HNSW2 SIFT](ablation/hnsw2/ablation_SIFT_log.png)
+![HNSW2 SIFT](assets/hnsw2/ablation_SIFT_log.png)
 
 **HNSW2 on GLOVE (Harder Dataset)**
-![HNSW2 GLOVE](ablation/hnsw2/ablation_GLOVE_log.png)
+![HNSW2 GLOVE](assets/hnsw2/ablation_GLOVE_log.png)
 
 **ONNG on SIFT (Impact of SQ16, SIMD, RCM)**
-![ONNG SIFT](ablation/onng1_test2/ablation_SIFT_log.png)
+![ONNG SIFT](assets/onng1_test2/ablation_SIFT_log.png)
 
 **ONNG on GLOVE**
-![ONNG GLOVE](ablation/onng1_test2/ablation_GLOVE_log.png)
+![ONNG GLOVE](assets/onng1_test2/ablation_GLOVE_log.png)
 
 ### Benchmark Environment
 
