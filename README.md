@@ -202,7 +202,7 @@ python plot_ablation.py hnsw2 SIFT
 **Features:**
 - **Graph caching**: Built graphs are saved to `graph_*.bin` for reuse
 - **Checkpoint resume**: If interrupted, evaluation resumes from the last completed parameter
-- **Parameter sweep**: Automatically sweeps gamma (0.00-0.50) or efSearch (0-1000)
+- **Parameter sweep**: Automatically sweeps gamma (0.00-0.50) or efSearch (10-91004)
 
 ## Quick Start
 
