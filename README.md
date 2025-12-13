@@ -137,6 +137,53 @@ The `ablation/` directory contains controlled experiments to measure the impact 
 | `baseline_without_simd` | Force scalar distance computation |
 | `baseline_without_two_shortcut_reductions` | Remove all edge pruning |
 
+We performed extensive ablation studies to isolate the impact of each optimization technique.
+
+### Findings
+The chart below demonstrates the performance breakdown on the SIFT-1M dataset. The **SQ16 quantization** (Pink line) provides the most significant boost in QPS while maintaining high recall.
+![ONNG Ablation on SIFT](ablation/onng1_test2/ablation_SIFT_log.png)
+*Figure: QPS vs Recall (Log Scale) on SIFT-1M. Note how SQ16 dominates the high-recall regime.*
+
+### Detailed Analysis
+
+**HNSW2 on SIFT (Impact of Hierarchy & Beam Search)**
+![HNSW2 SIFT](ablation/hnsw2/ablation_SIFT_log.png)
+
+**HNSW2 on GLOVE (Harder Dataset)**
+![HNSW2 GLOVE](ablation/hnsw2/ablation_GLOVE_log.png)
+
+**ONNG on SIFT (Impact of SQ16, SIMD, RCM)**
+![ONNG SIFT](ablation/onng1_test2/ablation_SIFT_log.png)
+
+**ONNG on GLOVE**
+![ONNG GLOVE](ablation/onng1_test2/ablation_GLOVE_log.png)
+
+### Benchmark Environment
+
+- **CPU**: Intel Core i5-1135G7 @ 2.40GHz (Tiger Lake)
+- **Cores**: 4 Cores, 8 Logical Processors
+- **Cache**: L2 5.0 MB / L3 8.0 MB
+- **OS**: Windows (Virtualization Enabled)
+
+> **Note**: All benchmarks were run on this single-node environment.
+
+### Benchmarking Best Practices
+
+To achieve minimal variance and reproduce the strict latency numbers reported above, we recommend the following environment configuration. While not mandatory, these steps prevent OS scheduling jitter and thermal throttling.
+
+
+#### 1. BIOS Configuration (Reduce Jitter)
+*   **Disable Hyper-Threading**: Reduces L1/L2 cache contention.
+*   **Disable Turbo Boost / SpeedStep / C-States**: Prevents frequency scaling and context switching delays.
+*   **Fix CPU Frequency**: Lock the CPU to its base frequency (or a static high performance state).
+
+#### 2. Preparation
+*   Close all unnecessary background applications.
+*   (Optional) Reboot to ensure a clean OS state.
+
+#### 3. Restoration
+*   **Important**: Remember to re-enable Hyper-Threading and dynamic frequency scaling in BIOS after benchmarking to restore full system performance for daily usage.
+
 ### Running Ablation Experiments
 
 ```bash
@@ -217,6 +264,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- SIFT dataset: [ANN Benchmarks](http://ann-benchmarks.com/)
+- SIFT Dataset: [Corpus-Texmex](http://corpus-texmex.irisa.fr/)
 - GloVe dataset: [Stanford NLP](https://nlp.stanford.edu/projects/glove/)
 - AI assistants: [Claude](https://claude.ai/) (Anthropic), [Gemini](https://gemini.google.com/) (Google)

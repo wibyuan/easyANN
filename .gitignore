@@ -56,3 +56,7 @@ dist/
 **/search_*.csv
 **/build_stats_*.csv
 **/ablation_*.png
+
+# BUT, do not ignore the assets folder (where README images live)
+!assets/
+!docs/images/
