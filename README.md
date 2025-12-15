@@ -252,12 +252,12 @@ public:
 
 This project includes or references the following open-source libraries:
 
-| Library | Usage | License | Location |
-|---------|-------|---------|----------|
-| [hnswlib](https://github.com/nmslib/hnswlib) | HNSW reference implementation | Apache-2.0 | `method/hnswlib/` |
-| [FlatNav](https://github.com/BlaiseMuhworworker/flatnav) | FlatNav reference implementation | MIT | `method/flatnavlib/` |
-| [Cereal](https://github.com/USCiLab/cereal) | Serialization | BSD-3-Clause | `method/flatnavlib/cereal/` |
-| [RapidJSON](https://github.com/Tencent/rapidjson) | JSON parsing | MIT | `method/flatnavlib/cereal/external/rapidjson/` |
+| Library                                             | Usage                            | License                                                      | Location                                       |
+| --------------------------------------------------- | -------------------------------- | ------------------------------------------------------------ | ---------------------------------------------- |
+| [hnswlib](https://github.com/nmslib/hnswlib)        | HNSW reference implementation    | Apache-2.0                                                   | `method/hnswlib/`                              |
+| [FlatNav](https://github.com/BlaiseMuhirwa/flatnav) | FlatNav reference implementation | Apache-2.0                                                   | `method/flatnavlib/`                           |
+| [Cereal](https://github.com/USCiLab/cereal)         | Serialization                    | BSD-3-Clause                                                 | `method/flatnavlib/cereal/`                    |
+| [RapidJSON](https://github.com/Tencent/rapidjson)   | JSON parsing                     | [MIT / BSD / JSON](https://github.com/Tencent/rapidjson/blob/master/license.txt) | `method/flatnavlib/cereal/external/rapidjson/` |
 
 ## License
 
