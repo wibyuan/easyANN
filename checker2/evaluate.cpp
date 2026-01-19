@@ -362,16 +362,19 @@ void process_dataset_ablation(
             cout << "\n  [终止] Recall 已达到 1，停止后续参数扫描。" << endl;
             break;
         }
-
-        // 2. 连续三次召回率不变，且大于 0.999
+        if (recall < prev_recall) {
+            cout<<"\n [逆天] 召回率下降了！算了吧，别搞了回家吧，当然可能是在瓶颈处不稳定" <<endl;
+            break;
+        }
+        // 2. 连续三次召回率不变
         if (recall == prev_recall) {
             stable_count++;
         } else {
             stable_count = 0;
         }
 
-        if (stable_count >= 3 && recall > 0.999) {
-            cout << "\n  [终止] Recall 已连续 3 次保持不变 (" << fixed << setprecision(6) << recall << ") 且 > 0.999，停止扫描。" << endl;
+        if (stable_count >= 3 ) {
+            cout << "\n  [终止] Recall 已连续 3 次保持不变 (" << fixed << setprecision(6) << recall << ") ，停止扫描。" << endl;
             break;
         }
 
