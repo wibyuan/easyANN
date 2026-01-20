@@ -22,11 +22,11 @@ This project implements 30+ variants of ANN algorithms to find the K nearest nei
 
 **FlatNav**: A single-layer variant of HNSW where `random_level()` always returns 0. This simplifies the graph structure while maintaining the core navigation properties.
 
-**ONNG**: Built on top of FlatNav (single-layer graph), with the addition of an **edge pruning (shortcut reduction) strategy** adapted from [NGT](https://github.com/yahoojapan/NGT)'s `adjustPathsEffectively`.
+**ONNG**: Built on top of FlatNav (single-layer graph). While initially implementing an **edge pruning strategy** from NGT, our latest findings indicate this step can be removed entirely without sacrificing, and in some cases even improving, the performance trade-off.
 
 **HNSW2**: Uses NGT's **adaptive search strategy** with a `gamma` parameter to control early termination based on the ratio between current candidate distance and the worst distance in the result set.
 
-**Important**: The edge pruning primarily affects graph storage size and cache efficiency. It does **not significantly reduce the number of distance computations** during search. The `onng1_test2_sq16_2` directory contains a pure single-layer graph **without** edge pruning for comparison.
+**Important**: Our experiments consistently show that the edge pruning step primarily affects graph storage size and does not significantly reduce distance computations. More importantly, **we found that omitting this step altogether leads to a simpler, faster, and equally effective algorithm**. The onng1_test2_sq16_3 and _4 directories contain our best-performing implementations, which are pure single-layer graphs **without** any explicit edge pruning.
 
 ### Optimizations
 
@@ -140,9 +140,33 @@ The `ablation/` directory contains controlled experiments to measure the impact 
 We performed extensive ablation studies to isolate the impact of each optimization technique.
 
 ### Findings
-The chart below demonstrates the performance breakdown on the SIFT-1M dataset. The **SQ16 quantization** (Pink line) provides the most significant boost in QPS while maintaining high recall.
-![ONNG Ablation on SIFT](assets/onng1_test2/ablation_SIFT_log.png)
-*Figure: QPS vs Recall (Log Scale) on SIFT-1M. Note how SQ16 dominates the high-recall regime.*
+
+Based on our quantitative research and ablation studies (detailed in the accompanying [course paper](path/to/paper_if_available)), we have reached several critical conclusions regarding high-performance graph indexing.
+
+**1. The "Optimization Illusion" of Complexity**
+Our experiments disprove the common belief that complex graph structures are necessary for high performance.
+- **Hierarchy is Redundant**: We found that the multi-layer structure of HNSW becomes redundant as the base layer itself achieves high navigability. A single-layer graph (FlatNav) simplifies code complexity and memory layout with **zero loss** in the recall-latency trade-off.
+- **Explicit Pruning is Unnecessary**: The rigorous edge pruning strategies (shortcut reduction) adapted from NGT/ONNG proved to be ineffective in our tests. HNSW's native heuristic for neighbor selection is robust enough; adding explicit pruning steps is an "optimization illusion" that consumes build time without tangible search benefits.
+
+**2. The Real Drivers of Performance**
+- **$\gamma$-Adaptive Search**: The most significant algorithmic gain comes from replacing the rigid `efSearch` with NGT's **$\gamma$-adaptive search**. This "soft filtering" mechanism allows the search to escape local optima dynamically, providing a superior QPS profile compared to fixed-beam search.
+
+![Ablation Study](assets/hnsw2/ablation_GLOVE_log.png)
+
+*Figure: The chart demonstrates that the simplified single-layer graph (blue line) combined with adaptive search achieves state-of-the-art performance, outperforming the complex baseline. Note how `fixed_beam` (green line) lags significantly, highlighting the importance of the $\gamma$-search strategy.*
+
+- **SQ16 & SIMD**: Among low-level optimizations, **16-bit Scalar Quantization (SQ16)** and **SIMD** instructions are confirmed to be highly effective, drastically reducing memory bandwidth pressure and distance computation costs.
+
+- **Ineffective Optimizations**: Techniques like Graph Reordering (RCM) and complex entry-point selection strategies (0 vs 100 random points) showed negligible impact on high-dimensional vectors in our setup.
+
+![Ablation Study](assets/onng1_test2/ablation_GLOVE_log.png)
+
+*Figure: QPS vs Recall (Log Scale) on GloVe-1.18M. Note how SQ16 dominates the high-recall regime.*
+
+**3. Hyperparameter Insights**
+We identified that the maximum degree of the base layer (`Mmax0`) can be significantly smaller than the construction search depth (`efConstruction`) (e.g., 64 vs 256). This configuration reduces index size and build time while maintaining >0.99 recall.
+![ONNG Ablation on SIFT](assets/pramtest/ablation_GLOVE_log.png)
+*Figure: QPS vs Recall (Log Scale) on GloVe-1.18M. baseline with efConstruction=256 and Mmax0=256.*
 
 ### Detailed Analysis
 
@@ -203,7 +227,7 @@ python plot_ablation.py hnsw2 SIFT
 - **Graph caching**: Built graphs are saved to `graph_*.bin` for reuse
 - **Checkpoint resume**: If interrupted, evaluation resumes from the last completed parameter
 - **Parameter sweep**: Automatically sweeps gamma (0.00-0.50) or efSearch (10-91004)
-- **Early Stopping**: Search terminates automatically if Recall@10 reaches **1.0**, or remains stable (plateaus) at **>0.999** for more than 3 consecutive iterations.
+- **Early Stopping**: Search terminates automatically if Recall@10 reaches 1.0, or if it remains stable (plateaus) for more than 3 consecutive iterations, or if it unexpectedly drops. This makes parameter sweeps much more efficient.
 
 ## Quick Start
 
