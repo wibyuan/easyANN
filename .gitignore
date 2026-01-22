@@ -59,4 +59,4 @@ dist/
 
 # BUT, do not ignore the assets folder (where README images live)
 !assets/
-!docs/images/
+!assets/**

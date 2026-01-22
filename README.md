@@ -141,7 +141,7 @@ We performed extensive ablation studies to isolate the impact of each optimizati
 
 ### Findings
 
-Based on our quantitative research and ablation studies (detailed in the accompanying [course paper](path/to/paper_if_available)), we have reached several critical conclusions regarding high-performance graph indexing.
+Based on our quantitative research and ablation studies, we have reached several critical conclusions regarding high-performance graph indexing.
 
 **1. The "Optimization Illusion" of Complexity**
 Our experiments disprove the common belief that complex graph structures are necessary for high performance.
